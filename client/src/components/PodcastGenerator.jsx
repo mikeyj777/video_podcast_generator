@@ -54,7 +54,6 @@ const PodcastGenerator = () => {
 
       const data = await response.json();
       // Handle successful submission
-      console.log('Generation started:', data);
       
     } catch (error) {
       setFormData(prev => ({

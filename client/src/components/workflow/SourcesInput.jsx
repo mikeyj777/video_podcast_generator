@@ -5,10 +5,6 @@ import { createSession, addSourceToSession } from '../../utils/databaseService';
 const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
   const [inputType, setInputType] = useState('url');
   const [isDragging, setIsDragging] = useState(false);
-
-
-  console.log('SourceInput render value:', value === ''); // Debug
-
   const handleDragEvents = (e, isDraggingState) => {
     e.preventDefault();
     e.stopPropagation();

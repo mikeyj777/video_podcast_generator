@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { generateTranscript,  } from "../../utils/transcriptionService";
 
 export const ConversationGenerator = ({ initialSources, onComplete }) => {
   const [method, setMethod] = useState('generate');
@@ -21,10 +22,14 @@ export const ConversationGenerator = ({ initialSources, onComplete }) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleGenerate = () => {
-    // In real implementation, this would call the Claude API
-    const generatedTranscript = `Sample transcript based on settings...`;
-    onComplete(generatedTranscript);
+  const handleGenerate = async() => {
+    try {
+        const transcript = await generateTranscript(sessionId, settings, initialSources);
+        onComplete(transcript);
+      } catch (error) {
+        // Handle error appropriately - maybe show an error message to user
+        console.error('Failed to generate transcript:', error);
+      }
   };
 
   const handleUpload = () => {

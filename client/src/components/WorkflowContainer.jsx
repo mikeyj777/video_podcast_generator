@@ -118,8 +118,7 @@ const WorkflowContainer = () => {
   const renderCurrentStep = () => {
     switch (workflowState.currentStep) {
       case 'sources':
-        console.log("sessionId", sessionId, " | entryPath", entryPath, " | workflowState.sources", workflowState.sources)
-      return (
+        return (
           <SourcesInput
             sessionId = {sessionId}
             onComplete={(data) => handleStepComplete('sources', data)}
@@ -173,7 +172,6 @@ const WorkflowContainer = () => {
           />
           
           <div className="workflow-main">
-            {console.log("workflowState", workflowState)}
             {renderCurrentStep()}
           </div>
 

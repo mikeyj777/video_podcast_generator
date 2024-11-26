@@ -1,0 +1,197 @@
+/* src/styles/workflow/ConversationGenerator.css */
+
+.conversation-generator {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.method-selector {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  background: #f3f4f6;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.method-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: #4b5563;
+  flex: 1;
+  text-align: center;
+}
+
+.method-button.active {
+  background: white;
+  color: #2563eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.generator-form,
+.upload-form {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.basic-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.setting-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.setting-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.setting-group select {
+  padding: 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.setting-group select:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+  accent-color: #2563eb;
+}
+
+.radio-option span {
+  font-size: 0.875rem;
+  color: #1a1a1a;
+}
+
+.toggle-advanced {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px dashed #e0e0e0;
+  background: white;
+  color: #2563eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.toggle-advanced:hover {
+  border-color: #2563eb;
+  background: #f0f7ff;
+}
+
+.advanced-settings {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.upload-area {
+  border: 2px dashed #e0e0e0;
+  border-radius: 6px;
+  padding: 2rem;
+  text-align: center;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
+}
+
+.upload-area:hover,
+.upload-area.dragging {
+  border-color: #2563eb;
+  background: #f0f7ff;
+}
+
+.upload-icon {
+  font-size: 2rem;
+  color: #2563eb;
+  margin-bottom: 0.5rem;
+}
+
+.transcript-preview {
+  margin-bottom: 1.5rem;
+}
+
+.transcript-preview textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  background: #f9fafb;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+.transcript-preview textarea:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.generate-button,
+.upload-button {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.generate-button:hover,
+.upload-button:hover {
+  background: #1d4ed8;
+}
+
+.upload-button:disabled {
+  background: #e0e0e0;
+  cursor: not-allowed;
+}

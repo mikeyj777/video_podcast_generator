@@ -6,7 +6,7 @@
 @import './workflow/Navigation.css';
 @import './workflow/SourcesInput.css';
 @import './workflow/WorkflowProgress.css';
-/* @import './workflow/ConversationGenerator.css'; */
+@import './workflow/ConversationGenerator.css';
 /* @import './workflow/ImageGenerator.css';
 @import './workflow/AudioGenerator.css';
 @import './workflow/VideoGenerator.css'; */
