@@ -8,7 +8,7 @@ import ConversationGenerator from './workflow/ConversationGenerator';
 import ImageGenerator from './workflow/ImageGenerator';
 import AudioGenerator from './workflow/AudioGenerator';
 import VideoGenerator from './workflow/VideoGenerator';
-import { createSession } from '../utils/databaseService';
+import { createSession, addSourceToSession } from '../utils/databaseService';
 import '../styles/global.css';
 
 const WorkflowContainer = () => {
@@ -109,7 +109,8 @@ const WorkflowContainer = () => {
     switch (workflowState.currentStep) {
       case 'sources':
         return (
-          <SourcesInput 
+          <SourcesInput
+            sessionId = {sessionId}
             onComplete={(data) => handleStepComplete('sources', data)}
           />
         );

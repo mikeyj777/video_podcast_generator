@@ -1,9 +1,13 @@
 // src/components/workflow/SourcesInput.jsx
 import React, { useState } from 'react';
+import { createSession, addSourceToSession } from '../../utils/databaseService';
 
 const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
   const [inputType, setInputType] = useState('url');
   const [isDragging, setIsDragging] = useState(false);
+
+
+  console.log('SourceInput render value:', value === ''); // Debug
 
   const handleDragEvents = (e, isDraggingState) => {
     e.preventDefault();
@@ -46,7 +50,7 @@ const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
           Text
         </button>
       </div>
-      
+
       <div 
         className={`input-area ${isDragging ? 'dragging' : ''}`}
         onDragEnter={(e) => handleDragEvents(e, true)}
@@ -54,10 +58,12 @@ const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
         onDragOver={(e) => handleDragEvents(e, true)}
         onDrop={handleDrop}
       >
+        
+        
         {inputType === 'url' ? (
           <input
             type="text"
-            value={value}
+            defaultValue={typeof value === 'string' ? value : ''}
             onChange={(e) => {
               onChange(e.target.value);
               onValidate(e.target.value.trim().length > 0);
@@ -67,7 +73,8 @@ const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
           />
         ) : (
           <textarea
-            value={value}
+            type="text"
+            defaultValue={typeof value === 'string' ? value : ''}
             onChange={(e) => {
               onChange(e.target.value);
               onValidate(e.target.value.trim().length > 0);
@@ -89,7 +96,7 @@ const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
   );
 };
 
-const SourcesInput = ({ onComplete }) => {
+const SourcesInput = ({ sessionId, onComplete }) => {
   const [sources, setSources] = useState([{ id: 1, content: '', isValid: false }]);
 
   const addSource = () => {
@@ -114,10 +121,25 @@ const SourcesInput = ({ onComplete }) => {
     ));
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     const validSources = sources.filter(source => source.isValid);
     if (validSources.length > 0) {
-      onComplete(validSources.map(source => source.content));
+      try {
+        // Use sessionId here
+        const uploadPromises = validSources.map(source => 
+          addSourceToSession(
+            sessionId,
+            source.content,
+            source.content.startsWith('http') ? 'url' : 'text'
+          )
+        );
+
+        await Promise.all(uploadPromises);
+        onComplete(validSources.map(source => source.content));
+      } catch (error) {
+        console.error('Failed to upload sources:', error);
+        // Handle error
+      }
     }
   };
 
