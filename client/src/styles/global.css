@@ -1,6 +1,28 @@
+/* src/styles/global.css */
 
-/* Import in src/styles/global.css */
 @import './workflow/Container.css';
 @import './workflow/EntrySelector.css';
 @import './workflow/Progress.css';
 @import './workflow/Navigation.css';
+@import './workflow/SourcesInput.css';
+/* @import './workflow/ConversationGenerator.css'; */
+/* @import './workflow/ImageGenerator.css';
+@import './workflow/AudioGenerator.css';
+@import './workflow/VideoGenerator.css'; */
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #f9fafb;
+}
+
+/* Add any other global styles here */

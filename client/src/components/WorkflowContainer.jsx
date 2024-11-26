@@ -2,18 +2,43 @@
 import React, { useState } from 'react';
 import EntrySelector from './workflow/EntrySelector';
 import WorkflowProgress from './workflow/WorkflowProgress';
+import WorkflowNavigation from './workflow/WorkflowNavigation';
 import SourcesInput from './workflow/SourcesInput';
 import ConversationGenerator from './workflow/ConversationGenerator';
-import WorkflowNavigation from './workflow/WorkflowNavigation';
+import ImageGenerator from './workflow/ImageGenerator';
+import AudioGenerator from './workflow/AudioGenerator';
+import VideoGenerator from './workflow/VideoGenerator';
+import { createSession } from '../utils/databaseService';
 import '../styles/global.css';
 
 const WorkflowContainer = () => {
+  const [sessionId, setSessionId] = useState(null);
   const [entryPath, setEntryPath] = useState(null);
   const [workflowState, setWorkflowState] = useState({
     sources: [],
     transcript: null,
-    currentStep: null
+    images: [],
+    audio: null,
+    video: null,
+    currentStep: null,
+    stepsCompleted: new Set()
   });
+
+  const handleEntryPathSelect = async (path) => {
+    try {
+        const session = await createSession(path);
+        setSessionId(session.id);
+        setEntryPath(path);
+        setWorkflowState(prev => ({
+            ...prev,
+            currentStep: path === 'sources' ? 'sources' : 'transcript'
+        }));
+    } catch (error) {
+        // Handle error appropriately
+        console.error('Failed to create session:', error);
+        // Maybe show an error message to user
+    }
+};
 
   const getSteps = () => {
     return entryPath === 'sources' 
@@ -22,49 +47,130 @@ const WorkflowContainer = () => {
   };
 
   const handleStepComplete = (step, data) => {
-    const steps = getSteps();
-    const currentIndex = steps.indexOf(step);
-    const nextStep = steps[currentIndex + 1];
-
     setWorkflowState(prev => ({
       ...prev,
       [step]: data,
-      currentStep: nextStep
+      stepsCompleted: new Set([...prev.stepsCompleted, step])
     }));
+  };
+
+  const handleNavigateBack = () => {
+    const steps = getSteps();
+    const currentIndex = steps.indexOf(workflowState.currentStep);
+    
+    if (currentIndex > 0) {
+      const previousStep = steps[currentIndex - 1];
+      setWorkflowState(prev => ({
+        ...prev,
+        currentStep: previousStep
+      }));
+    }
+  };
+
+  const handleNavigateNext = () => {
+    const steps = getSteps();
+    const currentIndex = steps.indexOf(workflowState.currentStep);
+    
+    if (currentIndex < steps.length - 1) {
+      const nextStep = steps[currentIndex + 1];
+      if (workflowState.stepsCompleted.has(workflowState.currentStep)) {
+        setWorkflowState(prev => ({
+          ...prev,
+          currentStep: nextStep
+        }));
+      }
+    }
+  };
+
+  const handleReset = () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to start over? All progress will be lost."
+    );
+    
+    if (confirmed) {
+      setEntryPath(null);
+      setWorkflowState({
+        sources: [],
+        transcript: null,
+        images: [],
+        audio: null,
+        video: null,
+        currentStep: null,
+        stepsCompleted: new Set()
+      });
+    }
+  };
+
+  const isCurrentStepCompleted = () => {
+    return workflowState.stepsCompleted.has(workflowState.currentStep);
+  };
+
+  const renderCurrentStep = () => {
+    switch (workflowState.currentStep) {
+      case 'sources':
+        return (
+          <SourcesInput 
+            onComplete={(data) => handleStepComplete('sources', data)}
+          />
+        );
+      case 'transcript':
+        return (
+          <ConversationGenerator
+            initialSources={workflowState.sources}
+            onComplete={(data) => handleStepComplete('transcript', data)}
+          />
+        );
+      case 'images':
+        return (
+          <ImageGenerator
+            transcript={workflowState.transcript}
+            onComplete={(data) => handleStepComplete('images', data)}
+          />
+        );
+      case 'audio':
+        return (
+          <AudioGenerator
+            transcript={workflowState.transcript}
+            onComplete={(data) => handleStepComplete('audio', data)}
+          />
+        );
+      case 'video':
+        return (
+          <VideoGenerator
+            transcript={workflowState.transcript}
+            images={workflowState.images}
+            audio={workflowState.audio}
+            onComplete={(data) => handleStepComplete('video', data)}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   return (
     <div className="workflow-container">
       {!entryPath ? (
-        <EntrySelector onSelect={setEntryPath} />
+        <EntrySelector onSelect={handleEntryPathSelect} />
       ) : (
         <div className="workflow-content">
           <WorkflowProgress 
             steps={getSteps()}
             currentStep={workflowState.currentStep}
+            completedSteps={workflowState.stepsCompleted}
           />
           
           <div className="workflow-main">
-            {entryPath === 'sources' && workflowState.currentStep === 'sources' && (
-              <SourcesInput 
-                onComplete={(sources) => handleStepComplete('sources', sources)}
-              />
-            )}
-
-            {workflowState.currentStep === 'transcript' && (
-              <ConversationGenerator
-                initialSources={workflowState.sources}
-                onComplete={(transcript) => handleStepComplete('transcript', transcript)}
-              />
-            )}
+            {renderCurrentStep()}
           </div>
 
           <WorkflowNavigation
             steps={getSteps()}
             currentStep={workflowState.currentStep}
-            onBack={() => {/* Handle back */}}
-            onReset={() => setEntryPath(null)}
-            onNext={() => {/* Handle next */}}
+            canNavigateNext={isCurrentStepCompleted()}
+            onBack={handleNavigateBack}
+            onReset={handleReset}
+            onNext={handleNavigateNext}
           />
         </div>
       )}

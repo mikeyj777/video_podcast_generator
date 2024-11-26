@@ -2,23 +2,19 @@
 import React, { useState } from 'react';
 
 const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
-  const [dragActive, setDragActive] = useState(false);
-  const [inputType, setInputType] = useState('url'); // 'url' or 'text'
+  const [inputType, setInputType] = useState('url');
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleDrag = (e) => {
+  const handleDragEvents = (e, isDraggingState) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
+    setIsDragging(isDraggingState);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragActive(false);
+    setIsDragging(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
@@ -35,7 +31,7 @@ const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
   };
 
   return (
-    <div className="source-input">
+    <div className="source-input-container">
       <div className="input-type-selector">
         <button 
           className={`type-button ${inputType === 'url' ? 'active' : ''}`}
@@ -50,9 +46,15 @@ const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
           Text
         </button>
       </div>
-
-      {inputType === 'url' ? (
-        <div className="url-input">
+      
+      <div 
+        className={`input-area ${isDragging ? 'dragging' : ''}`}
+        onDragEnter={(e) => handleDragEvents(e, true)}
+        onDragLeave={(e) => handleDragEvents(e, false)}
+        onDragOver={(e) => handleDragEvents(e, true)}
+        onDrop={handleDrop}
+      >
+        {inputType === 'url' ? (
           <input
             type="text"
             value={value}
@@ -61,16 +63,9 @@ const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
               onValidate(e.target.value.trim().length > 0);
             }}
             placeholder="Enter URL to paper, article, or data source..."
+            className="url-input"
           />
-        </div>
-      ) : (
-        <div 
-          className={`text-input ${dragActive ? 'drag-active' : ''}`}
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-        >
+        ) : (
           <textarea
             value={value}
             onChange={(e) => {
@@ -78,18 +73,23 @@ const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
               onValidate(e.target.value.trim().length > 0);
             }}
             placeholder="Paste or drag content here..."
+            className="text-input"
           />
-        </div>
-      )}
+        )}
+      </div>
 
-      <button className="remove-button" onClick={() => onRemove(id)}>
-        Remove
+      <button 
+        className="remove-button" 
+        onClick={() => onRemove(id)}
+        title="Remove source"
+      >
+        ×
       </button>
     </div>
   );
 };
 
-export const SourcesInput = ({ onComplete }) => {
+const SourcesInput = ({ onComplete }) => {
   const [sources, setSources] = useState([{ id: 1, content: '', isValid: false }]);
 
   const addSource = () => {
@@ -122,7 +122,9 @@ export const SourcesInput = ({ onComplete }) => {
   };
 
   return (
-    <div className="sources-input">
+    <div className="sources-input-wrapper">
+      <h3 className="sources-title">Add Your Sources</h3>
+      
       <div className="sources-list">
         {sources.map(source => (
           <SourceInput
@@ -136,17 +138,22 @@ export const SourcesInput = ({ onComplete }) => {
         ))}
       </div>
 
-      <button className="add-source-button" onClick={addSource}>
-        Add Another Source
-      </button>
+      <div className="sources-actions">
+        <button 
+          className="add-source-button"
+          onClick={addSource}
+        >
+          + Add Another Source
+        </button>
 
-      <button 
-        className="continue-button"
-        onClick={handleComplete}
-        disabled={!sources.some(source => source.isValid)}
-      >
-        Continue with Selected Sources
-      </button>
+        <button 
+          className="continue-button"
+          onClick={handleComplete}
+          disabled={!sources.some(source => source.isValid)}
+        >
+          Continue with Selected Sources
+        </button>
+      </div>
     </div>
   );
 };

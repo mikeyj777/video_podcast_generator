@@ -1,6 +1,6 @@
+import React from 'react';
 
-// src/components/workflow/EntrySelector.jsx
-export const EntrySelector = ({ onSelect }) => (
+const EntrySelector = ({ onSelect }) => (
   <div className="entry-selector">
     <h2>Choose Your Starting Point</h2>
     <div className="entry-options">
