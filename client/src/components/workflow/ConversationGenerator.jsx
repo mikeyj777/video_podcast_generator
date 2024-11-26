@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export const ConversationGenerator = ({ initialSources, onComplete }) => {
   const [method, setMethod] = useState('generate');
   const [settings, setSettings] = useState({
@@ -172,3 +174,5 @@ export const ConversationGenerator = ({ initialSources, onComplete }) => {
     </div>
   );
 };
+
+export default ConversationGenerator;

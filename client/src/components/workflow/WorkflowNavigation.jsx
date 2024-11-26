@@ -32,3 +32,5 @@ export const WorkflowNavigation = ({
     </button>
   </div>
 );
+
+export default WorkflowNavigation;

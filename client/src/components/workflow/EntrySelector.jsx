@@ -35,3 +35,5 @@ export const EntrySelector = ({ onSelect }) => (
   </div>
 );
 
+export default EntrySelector;
+

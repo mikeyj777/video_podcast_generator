@@ -12,3 +12,5 @@ export const WorkflowProgress = ({ steps, currentStep }) => (
     ))}
   </div>
 );
+
+export default WorkflowProgress;

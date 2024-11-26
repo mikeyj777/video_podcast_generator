@@ -150,3 +150,5 @@ export const SourcesInput = ({ onComplete }) => {
     </div>
   );
 };
+
+export default SourcesInput;

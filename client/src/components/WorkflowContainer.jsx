@@ -5,6 +5,7 @@ import WorkflowProgress from './workflow/WorkflowProgress';
 import SourcesInput from './workflow/SourcesInput';
 import ConversationGenerator from './workflow/ConversationGenerator';
 import WorkflowNavigation from './workflow/WorkflowNavigation';
+import '../styles/global.css';
 
 const WorkflowContainer = () => {
   const [entryPath, setEntryPath] = useState(null);
