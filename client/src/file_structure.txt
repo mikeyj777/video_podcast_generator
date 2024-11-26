@@ -1,0 +1,14 @@
+src/
+├── components/
+│   ├── WorkflowContainer.jsx
+│   └── workflow/
+│       ├── EntrySelector.jsx
+│       ├── WorkflowProgress.jsx
+│       └── WorkflowNavigation.jsx
+└── styles/
+    ├── global.css
+    └── workflow/
+        ├── Container.css
+        ├── EntrySelector.css
+        ├── Progress.css
+        └── Navigation.css

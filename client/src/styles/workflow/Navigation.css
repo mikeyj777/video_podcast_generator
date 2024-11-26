@@ -1,0 +1,43 @@
+
+/* src/styles/workflow/Navigation.css */
+.workflow-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.nav-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nav-button.back,
+.nav-button.reset {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.nav-button.back:hover,
+.nav-button.reset:hover {
+  background: #e5e7eb;
+}
+
+.nav-button.next {
+  background: #2563eb;
+  color: white;
+}
+
+.nav-button.next:hover {
+  background: #1d4ed8;
+}

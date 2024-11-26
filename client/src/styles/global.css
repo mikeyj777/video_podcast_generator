@@ -1,0 +1,6 @@
+
+/* Import in src/styles/global.css */
+@import './workflow/Container.css';
+@import './workflow/EntrySelector.css';
+@import './workflow/Progress.css';
+@import './workflow/Navigation.css';
