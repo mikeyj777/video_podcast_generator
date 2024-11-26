@@ -14,6 +14,7 @@ import '../styles/global.css';
 const WorkflowContainer = () => {
   const [sessionId, setSessionId] = useState(null);
   const [entryPath, setEntryPath] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [workflowState, setWorkflowState] = useState({
     sources: [],
     transcript: null,
@@ -25,20 +26,27 @@ const WorkflowContainer = () => {
   });
 
   const handleEntryPathSelect = async (path) => {
+    if (isProcessing) return; // Prevent multiple clicks during processing
+    
     try {
-        const session = await createSession(path);
-        setSessionId(session.id);
-        setEntryPath(path);
-        setWorkflowState(prev => ({
-            ...prev,
-            currentStep: path === 'sources' ? 'sources' : 'transcript'
-        }));
+      setIsProcessing(true);
+      const session = await createSession(path);
+      setSessionId(session.id);
+      setEntryPath(path);
+      setWorkflowState(prev => ({
+        ...prev,
+        currentStep: path === 'sources' ? 'sources' : 'transcript'
+      }));
     } catch (error) {
-        // Handle error appropriately
-        console.error('Failed to create session:', error);
-        // Maybe show an error message to user
+      console.error('Failed to create session:', error);
+      // Reset the state on error
+      setSessionId(null);
+      setEntryPath(null);
+      // Optionally show error to user
+    } finally {
+      setIsProcessing(false);
     }
-};
+  };
 
   const getSteps = () => {
     return entryPath === 'sources' 
@@ -88,7 +96,9 @@ const WorkflowContainer = () => {
     );
     
     if (confirmed) {
+      setSessionId(null);
       setEntryPath(null);
+      setIsProcessing(false);
       setWorkflowState({
         sources: [],
         transcript: null,
@@ -108,7 +118,8 @@ const WorkflowContainer = () => {
   const renderCurrentStep = () => {
     switch (workflowState.currentStep) {
       case 'sources':
-        return (
+        console.log("sessionId", sessionId, " | entryPath", entryPath, " | workflowState.sources", workflowState.sources)
+      return (
           <SourcesInput
             sessionId = {sessionId}
             onComplete={(data) => handleStepComplete('sources', data)}
@@ -162,6 +173,7 @@ const WorkflowContainer = () => {
           />
           
           <div className="workflow-main">
+            {console.log("workflowState", workflowState)}
             {renderCurrentStep()}
           </div>
 
