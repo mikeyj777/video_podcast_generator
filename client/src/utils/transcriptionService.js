@@ -1,5 +1,5 @@
 // src/utils/transcriptService.js
-import { CLAUDE_API_URL } from '../config';
+
 
 export const generateTranscript = async (sessionId, settings, sources) => {
   try {
