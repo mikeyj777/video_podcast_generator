@@ -1,8 +1,47 @@
 import { useState } from "react";
-import { generateTranscript,  } from "../../utils/transcriptionService";
+import { generateTranscript } from "../../utils/transcriptionService";
+
+const TranscriptEditor = ({ transcript, onSave, onClose }) => {
+  const [editedTranscript, setEditedTranscript] = useState(transcript);
+  
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>Preview & Edit Transcript</h2>
+          <button className="close-button" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body">
+          <textarea
+            className="transcript-editor"
+            value={editedTranscript}
+            onChange={(e) => setEditedTranscript(e.target.value)}
+            placeholder="Transcript content..."
+          />
+        </div>
+        <div className="modal-footer">
+          <button className="button-secondary" onClick={onClose}>Cancel</button>
+          <button 
+            className="button-primary"
+            onClick={() => {
+              onSave(editedTranscript);
+              onClose();
+            }}
+          >
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const ConversationGenerator = ({ sessionId, initialSources, onComplete }) => {
   const [method, setMethod] = useState('generate');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationStatus, setGenerationStatus] = useState(null);
+  const [currentTranscript, setCurrentTranscript] = useState(null);
+  const [showEditor, setShowEditor] = useState(false);
   const [settings, setSettings] = useState({
     hosts: '2',
     length: '15',
@@ -23,23 +62,54 @@ export const ConversationGenerator = ({ sessionId, initialSources, onComplete })
   };
 
   const handleGenerate = async() => {
+    setIsGenerating(true);
+    setGenerationStatus({ type: 'info', message: 'Generating transcript...' });
+    
     try {
-        const transcript = await generateTranscript(sessionId, settings, initialSources);
-        onComplete(transcript);
-      } catch (error) {
-        // Handle error appropriately - maybe show an error message to user
-        console.error('Failed to generate transcript:', error);
-      }
+      const transcript = await generateTranscript(sessionId, settings, initialSources);
+      setCurrentTranscript(transcript);
+      setGenerationStatus({ 
+        type: 'success', 
+        message: 'Transcript generated successfully! Use the Preview & Edit button below to review or make changes before proceeding.'
+      });
+    } catch (error) {
+      setGenerationStatus({ 
+        type: 'error', 
+        message: 'Failed to generate transcript. Please try again.' 
+      });
+      console.error('Failed to generate transcript:', error);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleUpload = () => {
     if (uploadedTranscript) {
-      onComplete(uploadedTranscript);
+      setCurrentTranscript(uploadedTranscript);
+      setGenerationStatus({ 
+        type: 'success', 
+        message: 'Transcript uploaded successfully! Use the Preview & Edit button below to review or make changes before proceeding.'
+      });
     }
+  };
+
+  const handleSaveTranscript = (editedTranscript) => {
+    setCurrentTranscript(editedTranscript);
+    onComplete(editedTranscript);
+    setGenerationStatus({
+      type: 'success',
+      message: 'Changes saved successfully. Click Next to proceed to image generation.'
+    });
   };
 
   return (
     <div className="conversation-generator">
+      {generationStatus && (
+        <div className={`status-message ${generationStatus.type}`}>
+          <p>{generationStatus.message}</p>
+        </div>
+      )}
+
       <div className="method-selector">
         <button 
           className={`method-button ${method === 'generate' ? 'active' : ''}`}
@@ -76,6 +146,7 @@ export const ConversationGenerator = ({ sessionId, initialSources, onComplete })
                 value={settings.length}
                 onChange={(e) => handleSettingsChange('length', e.target.value)}
               >
+                <option value="1">1 minute</option>
                 <option value="5">5 minutes</option>
                 <option value="15">15 minutes</option>
                 <option value="30">30 minutes</option>
@@ -123,9 +194,19 @@ export const ConversationGenerator = ({ sessionId, initialSources, onComplete })
           <button 
             className="generate-button"
             onClick={handleGenerate}
+            disabled={isGenerating}
           >
-            Generate Transcript
+            {isGenerating ? 'Generating...' : 'Generate Transcript'}
           </button>
+
+          {currentTranscript && (
+            <button 
+              className="preview-button"
+              onClick={() => setShowEditor(true)}
+            >
+              Preview & Edit Transcript
+            </button>
+          )}
         </div>
       ) : (
         <div className="upload-form">
@@ -174,7 +255,24 @@ export const ConversationGenerator = ({ sessionId, initialSources, onComplete })
           >
             Continue with Uploaded Transcript
           </button>
+
+          {currentTranscript && (
+            <button 
+              className="preview-button"
+              onClick={() => setShowEditor(true)}
+            >
+              Preview & Edit Transcript
+            </button>
+          )}
         </div>
+      )}
+
+      {showEditor && (
+        <TranscriptEditor
+          transcript={currentTranscript}
+          onSave={handleSaveTranscript}
+          onClose={() => setShowEditor(false)}
+        />
       )}
     </div>
   );

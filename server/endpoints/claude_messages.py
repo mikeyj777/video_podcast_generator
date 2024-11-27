@@ -95,6 +95,8 @@ def construct_transcript_prompt(sources, settings):
 
         Please generate a natural-sounding conversation that covers the key points while maintaining the specified style and parameters.
 
+        Do not include any explanatory text. Only provide the transcript. 
+        
         This is to be used as a podcast.
         """
     logging.info(f"Prompt: {prompt_text}")
