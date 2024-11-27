@@ -127,6 +127,7 @@ const WorkflowContainer = () => {
       case 'transcript':
         return (
           <ConversationGenerator
+            sessionId={sessionId}
             initialSources={workflowState.sources}
             onComplete={(data) => handleStepComplete('transcript', data)}
           />

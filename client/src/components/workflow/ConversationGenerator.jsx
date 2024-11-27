@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { generateTranscript,  } from "../../utils/transcriptionService";
 
-export const ConversationGenerator = ({ initialSources, onComplete }) => {
+export const ConversationGenerator = ({ sessionId, initialSources, onComplete }) => {
   const [method, setMethod] = useState('generate');
   const [settings, setSettings] = useState({
     hosts: '2',

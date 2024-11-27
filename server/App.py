@@ -1,75 +1,22 @@
-# app.py
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from datetime import datetime
 import os
-
 import logging
+from db.models import db, Session, Source, Transcript, Media
+from endpoints.claude_messages import claude_message
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://math.riskspace.net", "http://localhost:3000", "http://localhost:3001"]}})
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Construct database URI from environment variables
-DATABASE_URL = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME')}"
-
 # Database configuration
+DATABASE_URL = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME')}"
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
-
-# Models
-class Session(db.Model):
-    logging.debug("Session model started")
-    __tablename__ = 'sessions'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), nullable=True)
-    status = db.Column(db.String(50), nullable=False, default='active')
-    entry_path = db.Column(db.String(50), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    sources = db.relationship('Source', backref='session', lazy=True)
-    transcript = db.relationship('Transcript', backref='session', lazy=True)
-    media = db.relationship('Media', backref='session', lazy=True)
-
-class Source(db.Model):
-    logging.debug("Source model started")
-    __tablename__ = 'sources'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(db.Integer, db.ForeignKey('sessions.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    type = db.Column(db.String(50), nullable=False)
-    status = db.Column(db.String(50), nullable=False, default='pending')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Transcript(db.Model):
-    logging.debug("Transcript model started")
-    __tablename__ = 'transcripts'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(db.Integer, db.ForeignKey('sessions.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    host_count = db.Column(db.Integer)
-    duration = db.Column(db.Integer)
-    style = db.Column(db.String(50))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Media(db.Model):
-    logging.debug("media model started")
-    __tablename__ = 'media'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    session_id = db.Column(db.Integer, db.ForeignKey('sessions.id'), nullable=False)
-    type = db.Column(db.String(50), nullable=False)
-    url = db.Column(db.Text)
-    media_metadata = db.Column(db.JSON)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+# Initialize db with app
+db.init_app(app)
 
 # Routes
 @app.route('/api/sessions', methods=['POST'])
@@ -138,6 +85,12 @@ def update_session_status(session_id):
         'id': session.id,
         'status': session.status
     })
+
+@app.route('/api/sessions/<int:session_id>/chat', methods=['POST'])
+def chat(session_id):
+    # Verify session exists
+    session = Session.query.get_or_404(session_id)
+    return claude_message(request, session_id)
 
 if __name__ == '__main__':
     app.run(debug=True)

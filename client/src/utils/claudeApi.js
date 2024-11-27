@@ -1,9 +1,10 @@
+import Anthropic from '@anthropic-ai/sdk';
+
 const ANTHROPIC_API_KEY = process.env.REACT_APP_ANTHROPIC_API_KEY;
 const CLAUDE_API_URL = process.env.REACT_APP_CLAUDE_API_URL;
 const CLAUDE_MODEL = process.env.REACT_APP_CLAUDE_MODEL;
-import Anthropic from '@anthropic-ai/sdk';
 
-class ClaudeApiService {
+export default class ClaudeApiService {
   constructor() {
     this.apiKey = ANTHROPIC_API_KEY;
     this.apiUrl = CLAUDE_API_URL;
@@ -14,7 +15,7 @@ class ClaudeApiService {
   }
 
   isConfigured() {
-    return Boolean(this.apiKey && this.model);
+    return Boolean(this.apiKey && this.model  && this.apiUrl);
   }
 
   async makeApiCall(userPrompt, assistantPrompt="", maxTokens=4096) {
@@ -42,5 +43,4 @@ class ClaudeApiService {
     }
     return null;
   }
-
 }
