@@ -52,6 +52,8 @@ def claude_message(request, session_id):
             logging.error(f"Claude API error: {str(e)}")
             return jsonify({'error': 'Failed to generate transcript'}), 500
         
+        logging.info(f"Transcript: {message.content[0].text}")
+
         # Store the transcript
         try:
             transcript = Transcript(

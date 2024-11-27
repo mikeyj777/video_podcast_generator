@@ -5,6 +5,7 @@ import { createSession, addSourceToSession } from '../../utils/databaseService';
 const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
   const [inputType, setInputType] = useState('url');
   const [isDragging, setIsDragging] = useState(false);
+  
   const handleDragEvents = (e, isDraggingState) => {
     e.preventDefault();
     e.stopPropagation();
@@ -54,26 +55,25 @@ const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
         onDragOver={(e) => handleDragEvents(e, true)}
         onDrop={handleDrop}
       >
-        
-        
         {inputType === 'url' ? (
           <input
             type="text"
-            defaultValue={typeof value === 'string' ? value : ''}
+            value={value}  // Simply use value directly
             onChange={(e) => {
-              onChange(e.target.value);
-              onValidate(e.target.value.trim().length > 0);
+              const newValue = e.target.value;
+              onChange(newValue);
+              onValidate(newValue.trim().length > 0);
             }}
             placeholder="Enter URL to paper, article, or data source..."
             className="url-input"
           />
         ) : (
           <textarea
-            type="text"
-            defaultValue={typeof value === 'string' ? value : ''}
+            value={value}  // Simply use value directly
             onChange={(e) => {
-              onChange(e.target.value);
-              onValidate(e.target.value.trim().length > 0);
+              const newValue = e.target.value;
+              onChange(newValue);
+              onValidate(newValue.trim().length > 0);
             }}
             placeholder="Paste or drag content here..."
             className="text-input"
@@ -93,37 +93,43 @@ const SourceInput = ({ id, value, onChange, onRemove, onValidate }) => {
 };
 
 const SourcesInput = ({ sessionId, onComplete }) => {
-  const [sources, setSources] = useState([{ id: 1, content: '', isValid: false }]);
+  // Initialize with null instead of empty string
+  const [sources, setSources] = useState([{ id: 1, content: null, isValid: false }]);
 
   const addSource = () => {
-    setSources([...sources, { id: Date.now(), content: '', isValid: false }]);
+    setSources(prevSources => [...prevSources, { id: Date.now(), content: null, isValid: false }]);
   };
 
   const removeSource = (id) => {
     if (sources.length > 1) {
-      setSources(sources.filter(source => source.id !== id));
+      setSources(prevSources => prevSources.filter(source => source.id !== id));
     }
   };
 
   const updateSource = (id, content) => {
-    setSources(sources.map(source => 
-      source.id === id ? { ...source, content } : source
-    ));
+    setSources(prevSources => 
+      prevSources.map(source => 
+        source.id === id ? { ...source, content } : source
+      )
+    );
   };
 
   const validateSource = (id, isValid) => {
-    setSources(sources.map(source => 
-      source.id === id ? { ...source, isValid } : source
-    ));
+    setSources(prevSources => 
+      prevSources.map(source => 
+        source.id === id ? { ...source, isValid } : source
+      )
+    );
   };
 
   const handleComplete = async () => {
     console.log("Sources:", sources);
-    const validSources = sources.filter(source => source.isValid);
-    console.log("Valid sources:", validSources);
+    const validSources = sources.filter(source => 
+      source.isValid && source.content && source.content.trim()
+    );
+    console.log("Valid Sources:", validSources);
     if (validSources.length > 0) {
       try {
-        // Use sessionId here
         const uploadPromises = validSources.map(source => 
           addSourceToSession(
             sessionId,
@@ -136,7 +142,7 @@ const SourcesInput = ({ sessionId, onComplete }) => {
         onComplete(validSources.map(source => source.content));
       } catch (error) {
         console.error('Failed to upload sources:', error);
-        // Handle error
+        // Handle error appropriately
       }
     }
   };
@@ -150,7 +156,7 @@ const SourcesInput = ({ sessionId, onComplete }) => {
           <SourceInput
             key={source.id}
             id={source.id}
-            value={source.content}
+            value={source.content || ''}  // Convert null to empty string only for display
             onChange={(content) => updateSource(source.id, content)}
             onRemove={removeSource}
             onValidate={(isValid) => validateSource(source.id, isValid)}
