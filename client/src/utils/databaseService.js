@@ -1,5 +1,5 @@
 // src/utils/databaseService.js
-const API_BASE_URL = 'http://localhost:5000/api';  // Adjust based on your Flask server
+const API_BASE_URL = process.env.REACT_APP_API_URL
 
 export const createSession = async (entryPath, email = null) => {
     try {

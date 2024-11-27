@@ -1,8 +1,9 @@
 // client/src/utils/transcriptService.js
+const API_BASE_URL = process.env.REACT_APP_API_URL
 
 export const generateTranscript = async (sessionId, settings) => {
   try {
-    const response = await fetch(`/api/sessions/${sessionId}/chat`, {
+    const response = await fetch(`{API_BASE_URL}/sessions/${sessionId}/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
