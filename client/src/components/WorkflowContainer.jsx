@@ -33,6 +33,7 @@ const WorkflowContainer = () => {
       const session = await createSession(path);
       setSessionId(session.id);
       setEntryPath(path);
+      console.log('Session created:', session, " | Path:", path);
       setWorkflowState(prev => ({
         ...prev,
         currentStep: path === 'sources' ? 'sources' : 'transcript'

@@ -118,7 +118,9 @@ const SourcesInput = ({ sessionId, onComplete }) => {
   };
 
   const handleComplete = async () => {
+    console.log("Sources:", sources);
     const validSources = sources.filter(source => source.isValid);
+    console.log("Valid sources:", validSources);
     if (validSources.length > 0) {
       try {
         // Use sessionId here

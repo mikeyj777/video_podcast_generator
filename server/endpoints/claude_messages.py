@@ -5,8 +5,7 @@ from db.models import db, Session, Source, Transcript
 import os
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def claude_message(request, session_id):
     try:
@@ -17,18 +16,20 @@ def claude_message(request, session_id):
         session = Session.query.get(session_id)
         if not session:
             return jsonify({'error': 'Session not found'}), 404
-        
+        logging.info(f"Session ID: {session_id}")
         # Get sources for this session
         sources = Source.query.filter_by(session_id=session_id).all()
         if not sources:
             return jsonify({'error': 'No sources found for this session'}), 400
+        logging.info(f"Sources: {sources}")
             
         source_contents = [source.content for source in sources]
+        logging.info(f"Source contents: {source_contents}")
         
         # Initialize Anthropic client
         api_key = os.getenv('ANTHROPIC_API_KEY')
         if not api_key:
-            logger.error("ANTHROPIC_API_KEY not found in environment variables")
+            logging.error("ANTHROPIC_API_KEY not found in environment variables")
             return jsonify({'error': 'API configuration error'}), 500
             
         client = Anthropic(api_key=api_key)
@@ -48,7 +49,7 @@ def claude_message(request, session_id):
                 ]
             )
         except Exception as e:
-            logger.error(f"Claude API error: {str(e)}")
+            logging.error(f"Claude API error: {str(e)}")
             return jsonify({'error': 'Failed to generate transcript'}), 500
         
         # Store the transcript
@@ -63,7 +64,7 @@ def claude_message(request, session_id):
             db.session.add(transcript)
             db.session.commit()
         except Exception as e:
-            logger.error(f"Database error: {str(e)}")
+            logging.error(f"Database error: {str(e)}")
             return jsonify({'error': 'Failed to save transcript'}), 500
         
         return jsonify({
@@ -72,7 +73,7 @@ def claude_message(request, session_id):
         }), 200
         
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
+        logging.error(f"Unexpected error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 def construct_transcript_prompt(sources, settings):
@@ -94,7 +95,7 @@ def construct_transcript_prompt(sources, settings):
 
         This is to be used as a podcast.
         """
-    logging.debug(f"Prompt: {prompt_text}")
+    logging.info(f"Prompt: {prompt_text}")
     return prompt_text
 
 def calculate_max_tokens(minutes):
