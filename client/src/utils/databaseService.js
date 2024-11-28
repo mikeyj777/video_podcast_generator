@@ -66,3 +66,24 @@ export const updateSessionStatus = async (sessionId, status) => {
         throw error;
     }
 };
+
+export const updateTranscript = async (sessionId, transcript) => {
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}/transcript`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ transcript }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to update transcript');
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating transcript:', error);
+      throw error;
+    }
+  };
